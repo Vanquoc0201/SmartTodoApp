@@ -4,6 +4,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TaskService } from './task.service';
 import { AiService } from '../ai/ai.service';
+import { CreateTaskInsightDto } from './dto/create-insight.dto';
 
 @ApiTags('Tasks')
 @Controller('Tasks')
@@ -51,8 +52,8 @@ export class TaskController {
   @ApiBearerAuth('AccessToken')
   async rewriteTask(@Req() req, @Param('id') id: string){
     const task = await this.tasksService.findOne(req.user.id, id);
-    const rewritten = await this.aiService.rewriteTask(task);
-    await this.tasksService.saveInsight(id, rewritten);
+    const rewritten: CreateTaskInsightDto = await this.aiService.rewriteTask(task);
+    await this.tasksService.saveInsight(id, req.user.id, rewritten);
     return rewritten;
   }
 }

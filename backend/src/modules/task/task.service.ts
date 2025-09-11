@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateTaskInsightDto } from './dto/create-insight.dto';
 
 @Injectable()
 export class TaskService {
@@ -44,12 +45,17 @@ export class TaskService {
     return this.prisma.tasks.delete({ where: { id: task.id } });
   }
 
-  async saveInsight(taskId: string, insight: string) {
-  return this.prisma.task_insights.create({
-    data: {
-      task_id: taskId,
-      insight,
-    }
-  });
-}
+  async saveInsight(taskId: string, userId: string, dto: CreateTaskInsightDto) {
+    return this.prisma.task_insights.create({
+      data: {
+        task_id: taskId,
+        user_id: userId,
+        summary: dto.summary,
+        motivation: dto.motivation,
+        rewritten_title: dto.rewritten_title,
+        rewritten_description: dto.rewritten_description,
+      },
+    });
+  }
+
 }
