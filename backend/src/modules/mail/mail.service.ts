@@ -10,13 +10,21 @@ const transporter = createTransport({
   },
 });
 
+interface DailyReminderPayload {
+  user: { name: string | null; email: string };
+  tasks: { title: string; description?: string }[];
+  aiSummary: string;
+  aiMotivation: string;
+}
+
 @Injectable()
 export class MailService {
-  async sendDailyReminder(user : any, tasks: any[], aiSummary: string, aiMotivation: string) {
-    const tasksHtml = tasks.map(
-      (task, index) => `<li>${index + 1}. ${task.title} - ${task.description || ''}</li>`
-    ).join('');
-
+  async sendDailyReminder({
+    user,
+    tasks,
+    aiSummary,
+    aiMotivation,
+  }: DailyReminderPayload) {
     const htmlBody = `
     <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 20px;">
         <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -24,12 +32,16 @@ export class MailService {
         <p style="color: #555555; font-size: 16px;">Đây là nhắc nhở <strong>Task hôm nay</strong> của bạn:</p>
         
         <ul style="list-style-type: none; padding: 0;">
-            ${tasks.map((task, index) => `
+            ${tasks
+              .map(
+                (task, index) => `
             <li style="background-color: #f0f8ff; margin-bottom: 10px; padding: 15px; border-left: 5px solid #4CAF50; border-radius: 5px;">
                 <strong>${index + 1}. ${task.title}</strong><br/>
                 <span style="color: #666666; font-size: 14px;">${task.description || ''}</span>
             </li>
-            `).join('')}
+            `
+              )
+              .join('')}
         </ul>
 
         <div style="margin-top: 20px; padding: 15px; background-color: #e8f5e9; border-left: 5px solid #81C784; border-radius: 5px;">
@@ -52,7 +64,6 @@ export class MailService {
         </div>
     </div>
     `;
-
 
     try {
       const info = await transporter.sendMail({

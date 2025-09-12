@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
   controllers: [HabitController],
-  providers: [HabitService,TaskService,PrismaService]
+  providers: [HabitService,TaskService,PrismaService],
+  exports: [HabitService]
 })
 export class HabitModule {}

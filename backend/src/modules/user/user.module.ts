@@ -8,6 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports : [PassportModule, AuthModule],
   controllers: [UserController],
-  providers: [UserService,PrismaService]
+  providers: [UserService,PrismaService],
+  exports: [UserService],
 })
 export class UserModule {}

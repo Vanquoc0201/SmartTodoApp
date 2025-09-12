@@ -7,6 +7,7 @@ import { AiService } from '../ai/ai.service';
 @Module({
   imports : [PassportModule],
   controllers: [TaskController],
-  providers: [TaskService,PrismaService, AiService]
+  providers: [TaskService,PrismaService, AiService],
+  exports: [TaskService]
 })
 export class TaskModule {}
