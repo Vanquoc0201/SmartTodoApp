@@ -1,8 +1,8 @@
-'use client'; 
+'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation'; 
-import { Home, Lightbulb, Settings, User, LogOut, Menu } from 'lucide-react'; 
+import { usePathname, useRouter } from 'next/navigation';
+import { Home, Lightbulb, Settings, User, LogOut, Menu } from 'lucide-react';
 
 import { ModeToggle } from '@/components/theme/modetoggle';
 import { Button } from '@/components/ui/button';
@@ -14,10 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'; 
-
-const isLoggedIn = true; 
-const userName = 'Vanquoc0201'; 
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useAuth } from '@/contexts/auth-context';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
@@ -27,17 +25,16 @@ const navLinks = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoggedIn, logout } = useAuth();
 
-  // Hàm xử lý logout (sẽ gọi authService.logout sau)
   const handleLogout = () => {
-    console.log('User logged out');
-    // Thực hiện logout API call và redirect
+    logout();
   };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        {/* Logo / App Name */}
         <div className="mr-4 md:flex">
           <Link href="/" className="flex items-center space-x-2 font-bold text-lg">
             <Lightbulb className="h-6 w-6 text-primary" />
@@ -45,7 +42,6 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex flex-1 items-center justify-center space-x-6 text-sm font-medium">
           {isLoggedIn ? (
             <>
@@ -63,7 +59,6 @@ export function Navbar() {
             </>
           ) : (
             <>
-              {/* Links cho khách nếu chưa đăng nhập */}
               <Link
                 href="/login"
                 className={`transition-colors hover:text-foreground ${
@@ -84,7 +79,6 @@ export function Navbar() {
           )}
         </nav>
 
-        {/* Right Section: User Dropdown, Mode Toggle, Mobile Menu Toggle */}
         <div className="flex items-center space-x-4 md:space-x-6 ml-auto">
           {isLoggedIn && (
             <DropdownMenu>
@@ -97,20 +91,24 @@ export function Navbar() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {/* user.email sẽ hiển thị ở đây */}
+                      {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => console.log('View profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => console.log('Settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
@@ -121,9 +119,8 @@ export function Navbar() {
             </DropdownMenu>
           )}
 
-          <ModeToggle /> {/* Nút chuyển đổi chế độ sáng/tối của bạn */}
+          <ModeToggle />
 
-          {/* Mobile Navigation Toggle */}
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden">
@@ -131,7 +128,7 @@ export function Navbar() {
                 <span className="sr-only">Open mobile menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-3/4"> {/* Điều chỉnh chiều rộng mobile menu nếu cần */}
+            <SheetContent side="left" className="w-3/4">
               <Link href="/" className="mb-6 flex items-center space-x-2 text-lg font-bold">
                 <Lightbulb className="h-6 w-6 text-primary" />
                 <span>Smart Todo App</span>
@@ -146,7 +143,7 @@ export function Navbar() {
                         className={`flex items-center gap-2 transition-colors hover:text-foreground ${
                           pathname === link.href ? 'text-foreground' : 'text-foreground/60'
                         }`}
-                        onClick={() => { /* Close sheet on click */ }}
+                        onClick={() => {}}
                       >
                         <link.icon className="h-4 w-4" />
                         {link.label}

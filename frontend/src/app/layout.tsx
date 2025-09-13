@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/theme/theme-provider';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/contexts/auth-context';
 
 import './globals.css';
 
@@ -39,14 +40,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
-          <Toaster richColors position="top-right" />
+          <AuthProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+            <Toaster richColors position="top-right" />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

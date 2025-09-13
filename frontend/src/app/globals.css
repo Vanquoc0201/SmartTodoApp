@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
@@ -119,4 +119,20 @@
   body {
     @apply bg-background text-foreground;
   }
+} */
+.bg-dot-grid {
+  background-image: radial-gradient(var(--background) 1px, transparent 1px);
+  background-size: 16px 16px; /* Kích thước ô lưới */
+  background-position: -1px -1px;
+}
+
+/* Thêm các biến màu nếu cần cho Tailwind
+   Bạn có thể thêm vào tailwind.config.ts nếu muốn dùng dạng `text-blue-500`
+   Nhưng nếu dùng trực tiếp trong CSS variables thì sẽ trông như sau
+*/
+:root {
+  --blue-500: #3b82f6; /* Example */
+  --green-500: #22c55e;
+  --purple-500: #a855f7;
+  --yellow-500: #eab308;
 }
