@@ -19,8 +19,6 @@ import { useAuth } from '@/contexts/auth-context';
 
 const navLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/insights', label: 'Insights', icon: Lightbulb },
-  { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
 export function Navbar() {

@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { NaturalInputForm } from '@/components/tasks/NaturalInputForm';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 import { TaskCard } from '@/components/tasks/TaskCard'; 
 import { useTasks } from '@/hooks/useTasks';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Sparkles, PlusCircle, Frown } from 'lucide-react';
+import { PlusCircle, Frown } from 'lucide-react';
 
 export default function DashboardPage() {
   const { tasks, isLoading, error } = useTasks();
@@ -29,32 +28,16 @@ export default function DashboardPage() {
     <div className="container py-8 space-y-8">
       <h1 className="text-4xl font-bold text-center">Dashboard của bạn</h1>
       <p className="text-lg text-muted-foreground text-center">
-        Quản lý và tạo task thông minh với sức mạnh của AI.
+        Quản lý và tạo task một cách dễ dàng.
       </p>
 
-      {/* Natural Input Form Section */}
-      <Card className="max-w-2xl mx-auto p-6 shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold flex items-center justify-center space-x-2">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <span>Tạo Task bằng AI</span>
-          </CardTitle>
-          <CardDescription>
-            Gõ task bằng ngôn ngữ tự nhiên và AI sẽ lo phần còn lại.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <NaturalInputForm />
-        </CardContent>
-      </Card>
-
-      {/* Button Tạo Task Thường */}
+      {/* Button Tạo Task */}
       <div className="flex justify-center mt-6">
         <Dialog open={isCreateTaskModalOpen} onOpenChange={setIsCreateTaskModalOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="text-lg px-6 py-3">
               <PlusCircle className="mr-2 h-5 w-5" />
-              Tạo Task thủ công
+              Tạo Task mới
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -87,7 +70,7 @@ export default function DashboardPage() {
         </div>
       ) : tasks.length === 0 ? (
         <p className="text-center text-muted-foreground text-lg flex items-center justify-center gap-2">
-          <Frown className="h-5 w-5" /> Bạn chưa có task nào. Hãy tạo một task mới bằng AI hoặc thủ công!
+          <Frown className="h-5 w-5" /> Bạn chưa có task nào. Hãy tạo một task mới!
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

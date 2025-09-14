@@ -23,7 +23,7 @@ export interface CreateTaskPayload {
   deadline?: string;
   status?: TaskStatus; 
   tags?: string[];
-  estimatedDurationMinutes?: number;
+  estimated_duration_minutes?: number;
 }
 
 export interface UpdateTaskPayload {
@@ -33,6 +33,6 @@ export interface UpdateTaskPayload {
   deadline?: string;
   status?: TaskStatus;
   tags?: string[];
-  estimatedDurationMinutes?: number;
+  estimated_duration_minutes?: number;
   completedAt?: string; 
 }

@@ -1,4 +1,3 @@
-// src/components/tasks/TaskCard.tsx
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -36,11 +35,11 @@ export function TaskCard({ task }: TaskCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const handleToggleTaskStatus = async (currentStatus: TaskStatus) => {
-    const newStatus = currentStatus === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
-    const completedAt = newStatus === 'COMPLETED' ? new Date().toISOString() : undefined;
+    const newStatus: TaskStatus = currentStatus === 'DONE' ? 'PENDING' : 'DONE';
+    const completedAt = newStatus === 'DONE' ? new Date().toISOString() : undefined;
     try {
       await updateTask(task.id, { status: newStatus, completedAt });
-      toast.success(newStatus === 'COMPLETED' ? 'Task đã hoàn thành!' : 'Task đã được mở lại.');
+      toast.success(newStatus === 'DONE' ? 'Task đã hoàn thành!' : 'Task đã được mở lại.');
     } catch (err) {
       console.error('Failed to toggle task status:', err);
       toast.error('Cập nhật trạng thái task thất bại.');
@@ -66,17 +65,16 @@ export function TaskCard({ task }: TaskCardProps) {
     }
   };
 
-  const isOverdue = task.deadline && task.status !== 'COMPLETED' && parseISO(task.deadline) < new Date();
+  const isOverdue = task.deadline && task.status !== 'DONE' && parseISO(task.deadline) < new Date();
 
   return (
-    <Card className={`p-4 flex flex-col ${task.status === 'COMPLETED' ? 'opacity-60 line-through' : ''} ${isOverdue ? 'border-red-500 border-2' : ''}`}>
+    <Card className={`p-4 flex flex-col ${task.status === 'DONE' ? 'opacity-60 line-through' : ''} ${isOverdue ? 'border-red-500 border-2' : ''}`}>
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Checkbox
-            checked={task.status === 'COMPLETED'}
+            checked={task.status === 'DONE'}
             onCheckedChange={() => handleToggleTaskStatus(task.status)}
             id={`task-${task.id}`}
-            disabled={task.status === 'OVERDUE'} // Không cho hoàn thành task đã quá hạn nếu chưa được sửa
           />
           <label
             htmlFor={`task-${task.id}`}
@@ -101,7 +99,7 @@ export function TaskCard({ task }: TaskCardProps) {
             <DropdownMenuContent align="end">
               <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}> {/* Prevent dropdown from closing */}
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                     <Edit className="mr-2 h-4 w-4" /> Chỉnh sửa
                   </DropdownMenuItem>
                 </DialogTrigger>

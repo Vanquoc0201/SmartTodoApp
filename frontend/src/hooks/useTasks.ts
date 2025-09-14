@@ -10,12 +10,21 @@ export const useTasks = (initialTasks: Task[] = []) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const normalizeTask = (task: Task): Task => ({
+    ...task,
+    title: task.title ?? '',
+    description: task.description ?? '',
+    tags: task.tags ?? [],
+    priority: task.priority ?? 'MEDIUM',
+    status: task.status ?? 'PENDING',
+  });
+
   const fetchTasks = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const fetchedTasks = await taskService.getAllTasks();
-      setTasks(fetchedTasks);
+      setTasks(fetchedTasks.map(normalizeTask));
     } catch (err: any) {
       setError(err.message || 'Failed to fetch tasks');
       toast.error(err.message || 'Lấy danh sách task thất bại.');
@@ -33,9 +42,8 @@ export const useTasks = (initialTasks: Task[] = []) => {
     setError(null);
     try {
       const newTask = await taskService.createTask(payload);
-      setTasks((prevTasks) => [newTask, ...prevTasks]);
+      setTasks(prev => [...prev, normalizeTask(newTask)]);
       toast.success('Task đã được tạo thành công!');
-      return newTask;
     } catch (err: any) {
       setError(err.message || 'Failed to add task');
       toast.error(err.message || 'Tạo task thất bại.');
@@ -50,11 +58,10 @@ export const useTasks = (initialTasks: Task[] = []) => {
     setError(null);
     try {
       const updatedTask = await taskService.updateTask(taskId, payload);
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => (task.id === taskId ? updatedTask : task))
+      setTasks(prev =>
+        prev.map(t => (t.id === taskId ? normalizeTask(updatedTask) : t))
       );
       toast.success('Task đã được cập nhật!');
-      return updatedTask;
     } catch (err: any) {
       setError(err.message || 'Failed to update task');
       toast.error(err.message || 'Cập nhật task thất bại.');
@@ -69,7 +76,7 @@ export const useTasks = (initialTasks: Task[] = []) => {
     setError(null);
     try {
       await taskService.deleteTask(taskId);
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      setTasks(prev => prev.filter(t => t.id !== taskId));
       toast.success('Task đã được xóa!');
     } catch (err: any) {
       setError(err.message || 'Failed to delete task');

@@ -6,7 +6,6 @@ import * as z from 'zod';
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { Priority, Task, UpdateTaskPayload } from '@/types/task';
+import { Task, UpdateTaskPayload } from '@/types/task';
 import { useTasks } from '@/hooks/useTasks';
 
 const formSchema = z.object({
@@ -48,26 +47,25 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: task.title,
-      description: task.description || '',
-      priority: task.priority,
-      deadline: task.deadline ? parseISO(task.deadline) : undefined,
+      title: task.title ?? '',
+      description: task.description ?? '',
+      priority: task.priority ?? 'LOW',
+      deadline: task.deadline ? parseISO(task.deadline) : null,
       tags: task.tags ? task.tags.join(', ') : '',
-      estimatedDurationMinutes: task.estimatedDurationMinutes || undefined,
+      estimatedDurationMinutes: task.estimatedDurationMinutes ?? undefined,
     },
   });
 
   useEffect(() => {
     form.reset({
-      title: task.title,
-      description: task.description || '',
-      priority: task.priority,
-      deadline: task.deadline ? parseISO(task.deadline) : undefined,
+      title: task.title ?? '',
+      description: task.description ?? '',
+      priority: task.priority ?? 'LOW',
+      deadline: task.deadline ? parseISO(task.deadline) : null,
       tags: task.tags ? task.tags.join(', ') : '',
-      estimatedDurationMinutes: task.estimatedDurationMinutes || undefined,
+      estimatedDurationMinutes: task.estimatedDurationMinutes ?? undefined,
     });
   }, [task, form]);
-
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
@@ -76,15 +74,13 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
         title: values.title,
         description: values.description || undefined,
         priority: values.priority,
-        deadline: values.deadline ? values.deadline.toISOString() : undefined, 
+        deadline: values.deadline ? values.deadline.toISOString() : undefined,
         tags: values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [],
-        estimatedDurationMinutes: values.estimatedDurationMinutes,
+        estimated_duration_minutes: values.estimatedDurationMinutes,
       };
-      
+
       await updateTask(task.id, payload);
-      if (onTaskUpdated) {
-        onTaskUpdated();
-      }
+      onTaskUpdated?.();
     } catch (error) {
       console.error('Error updating task:', error);
     } finally {
@@ -102,7 +98,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
             <FormItem>
               <FormLabel>Tiêu đề task</FormLabel>
               <FormControl>
-                <Input placeholder="Ví dụ: Chuẩn bị báo cáo cuối kỳ" {...field} />
+                <Input placeholder="Ví dụ: Chuẩn bị báo cáo cuối kỳ" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -115,7 +111,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
             <FormItem>
               <FormLabel>Mô tả (Tùy chọn)</FormLabel>
               <FormControl>
-                <Textarea placeholder="Chi tiết công việc..." {...field} rows={3} />
+                <Textarea placeholder="Chi tiết công việc..." {...field} value={field.value ?? ''} rows={3} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +123,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Mức độ ưu tiên</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value ?? 'LOW'}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn mức độ ưu tiên" />
@@ -159,11 +155,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
                         !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, 'PPP HH:mm')
-                      ) : (
-                        <span>Chọn ngày & giờ</span>
-                      )}
+                      {field.value ? format(field.value, 'PPP HH:mm') : <span>Chọn ngày & giờ</span>}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </FormControl>
@@ -171,7 +163,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value || undefined}
+                    selected={field.value ?? undefined}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date()}
                     initialFocus
@@ -180,8 +172,9 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
                     <div className="p-2 border-t flex justify-center">
                       <Input
                         type="time"
-                        value={format(field.value, 'HH:mm')}
+                        value={field.value ? format(field.value, 'HH:mm') : ''}
                         onChange={(e) => {
+                          if (!field.value) return;
                           const [hours, minutes] = e.target.value.split(':').map(Number);
                           const newDate = new Date(field.value as Date);
                           newDate.setHours(hours, minutes);
@@ -193,9 +186,7 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
                   )}
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Đặt ngày và giờ hoàn thành cho task này.
-              </FormDescription>
+              <FormDescription>Đặt ngày và giờ hoàn thành cho task này.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -207,11 +198,9 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
             <FormItem>
               <FormLabel>Tags (Tùy chọn)</FormLabel>
               <FormControl>
-                <Input placeholder="Ví dụ: công việc, học tập, cá nhân" {...field} />
+                <Input placeholder="Ví dụ: công việc, học tập, cá nhân" {...field} value={field.value ?? ''} />
               </FormControl>
-              <FormDescription>
-                Ngăn cách các tags bằng dấu phẩy.
-              </FormDescription>
+              <FormDescription>Ngăn cách các tags bằng dấu phẩy.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -226,8 +215,8 @@ export function UpdateTaskForm({ task, onTaskUpdated }: UpdateTaskFormProps) {
                 <Input
                   type="number"
                   placeholder="Ví dụ: 60"
-                  {...field}
-                  onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                  value={field.value?.toString() ?? ''}
+                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
                 />
               </FormControl>
               <FormMessage />

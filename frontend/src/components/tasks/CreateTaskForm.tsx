@@ -33,7 +33,7 @@ const formSchema = z.object({
   deadline: z.date().optional().nullable(),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']).optional(),
   tags: z.string().optional(),
-  estimatedDurationMinutes: z.number().int().min(5).optional(),
+  estimated_duration_minutes: z.number().int().min(5).nullable().optional(),
 });
 
 export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }) {
@@ -49,7 +49,7 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
       deadline: undefined,
       status: 'PENDING',
       tags: '',
-      estimatedDurationMinutes: undefined,
+      estimated_duration_minutes: null,
     },
   });
 
@@ -61,9 +61,9 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
         description: values.description || undefined,
         priority: values.priority,
         deadline: values.deadline ? values.deadline.toISOString() : undefined,
-        status: values.status, 
+        status: values.status,
         tags: values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : undefined,
-        estimatedDurationMinutes: values.estimatedDurationMinutes,
+        estimated_duration_minutes: values.estimated_duration_minutes ?? undefined,
       };
 
       const newTask = await addTask(payload);
@@ -113,7 +113,7 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
           render={({ field }) => (
             <FormItem>
               <FormLabel>Mức độ ưu tiên</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn mức độ ưu tiên" />
@@ -135,7 +135,7 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
           render={({ field }) => (
             <FormItem>
               <FormLabel>Trạng thái</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn trạng thái" />
@@ -226,7 +226,7 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
         />
         <FormField
           control={form.control}
-          name="estimatedDurationMinutes"
+          name="estimated_duration_minutes"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Thời gian ước tính (phút - Tùy chọn)</FormLabel>
@@ -234,8 +234,8 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
                 <Input
                   type="number"
                   placeholder="Ví dụ: 60"
-                  {...field}
-                  onChange={e => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                  value={field.value ?? ''}
+                  onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
                 />
               </FormControl>
               <FormMessage />
