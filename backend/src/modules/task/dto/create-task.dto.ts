@@ -35,5 +35,5 @@ export class CreateTaskDto {
   @ApiProperty({ example: 120, required: false })
   @IsOptional()
   @IsInt()
-  estimated_duration_minutes?: number;
+  estimatedDurationMinutes?: number;
 }
