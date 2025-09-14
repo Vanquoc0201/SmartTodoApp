@@ -6,7 +6,6 @@ import * as z from 'zod';
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { Priority, CreateTaskPayload } from '@/types/task';
+import { CreateTaskPayload } from '@/types/task';
 import { useTasks } from '@/hooks/useTasks';
 
 const formSchema = z.object({
@@ -32,6 +31,7 @@ const formSchema = z.object({
   description: z.string().max(500, { message: 'Mô tả quá dài.' }).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH'], { message: 'Mức độ ưu tiên không hợp lệ.' }),
   deadline: z.date().optional().nullable(),
+  status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']).optional(),
   tags: z.string().optional(),
   estimatedDurationMinutes: z.number().int().min(5).optional(),
 });
@@ -47,6 +47,7 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
       description: '',
       priority: 'MEDIUM',
       deadline: undefined,
+      status: 'PENDING',
       tags: '',
       estimatedDurationMinutes: undefined,
     },
@@ -60,10 +61,11 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
         description: values.description || undefined,
         priority: values.priority,
         deadline: values.deadline ? values.deadline.toISOString() : undefined,
-        tags: values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : [],
+        status: values.status, 
+        tags: values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : undefined,
         estimatedDurationMinutes: values.estimatedDurationMinutes,
       };
-      
+
       const newTask = await addTask(payload);
       form.reset();
       if (onTaskCreated) {
@@ -121,6 +123,28 @@ export function CreateTaskForm({ onTaskCreated }: { onTaskCreated?: () => void }
                   <SelectItem value="HIGH">Cao</SelectItem>
                   <SelectItem value="MEDIUM">Trung bình</SelectItem>
                   <SelectItem value="LOW">Thấp</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Trạng thái</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="PENDING">Chờ xử lý</SelectItem>
+                  <SelectItem value="IN_PROGRESS">Đang làm</SelectItem>
+                  <SelectItem value="DONE">Hoàn thành</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

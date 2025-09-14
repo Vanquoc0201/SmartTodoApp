@@ -45,7 +45,7 @@ export class PlannerService {
 
     const suggestedEnd = new Date(suggestedStart);
     suggestedEnd.setMinutes(
-      suggestedEnd.getMinutes() + (task.estimated_duration_minutes ?? 60),
+      suggestedEnd.getMinutes() + (task.estimatedDurationMinutes ?? 60),
     );
 
     currentHour++;

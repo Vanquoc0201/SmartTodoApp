@@ -46,21 +46,22 @@ model task_insights {
 }
 
 model tasks {
-  id                         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                    String          @db.Uuid
-  title                      String
-  description                String?
-  priority                   priority_level? @default(MEDIUM)
-  deadline                   DateTime?       @db.Timestamptz(6)
-  status                     task_status?    @default(PENDING)
-  tags                       String[]        @default([])
-  estimated_duration_minutes Int?
-  created_at                 DateTime?       @default(now()) @db.Timestamptz(6)
-  updated_at                 DateTime?       @default(now()) @db.Timestamptz(6)
-  completed_at               DateTime?       @db.Timestamptz(6)
-  task_insights              task_insights[]
-  users                      users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_user")
+  id                        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                   String          @db.Uuid
+  title                     String
+  description               String?
+  priority                  priority_level? @default(MEDIUM)
+  deadline                  DateTime?       @db.Timestamptz(6)
+  status                    task_status?    @default(PENDING)
+  tags                      String[]        @default([])
+  estimatedDurationMinutes  Int?            @map("estimated_duration_minutes")
+  created_at                DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime?       @default(now()) @db.Timestamptz(6)
+  completed_at              DateTime?       @db.Timestamptz(6)
+  task_insights             task_insights[]
+  users                     users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_user")
 }
+
 
 model users {
   id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
